@@ -1,0 +1,90 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Dashboard</title><link rel="stylesheet" href="/style.css"></head><body>
+<div class="wrap">
+  <div class="card">
+    <div class="top">
+      <div class="avatar" id="av">?</div>
+      <div class="who"><b id="name">...</b><span class="pill"><i class="dot"></i><span id="status">Online</span></span></div>
+      <button class="mini" onclick="logout()">Logout</button>
+    </div>
+    <div class="stats">
+      <div class="stat in">Role<b id="role">-</b></div>
+      <div class="stat in">Status<b id="st">Active</b></div>
+    </div>
+  </div>
+
+  <div class="card" style="animation-delay:.15s">
+    <h3 style="margin-bottom:18px">Quick Actions</h3>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="card" id="adminCard" hidden style="animation-delay:.3s">
+    <h3>Admin Panel</h3>
+    <div class="panel" id="panel">
+      <div class="field"><input id="nu" placeholder="Notun username"></div>
+      <div class="field"><input id="np" type="password" placeholder="Password (min 6)"></div>
+      <div class="field"><select id="nr"><option value="user">user</option><option value="admin">admin</option></select></div>
+      <button class="btn" onclick="addUser()">ADD USER</button>
+      <p class="err" id="e"></p>
+      <div id="list"></div>
+    </div>
+    <button class="btn" style="margin-top:16px" id="tg">Manage Users</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== TOMAR BACKEND LINK EKHANE BOSHAO =====
+   type:'link' → link/tel:/mailto: open hobe
+   type:'api'  → tomar backend e POST request jabe (url e API link dao)
+   url faka thakle "link set kora hoyni" message dekhabe */
+const ACTIONS=[
+  {icon:'📞',label:'Call',     type:'link',url:''},   // e.g. 'tel:+8801XXXXXXXXX'
+  {icon:'💬',label:'SMS',      type:'link',url:''},   // e.g. 'sms:+8801XXXXXXXXX'
+  {icon:'✉️',label:'Email',    type:'link',url:''},   // e.g. 'mailto:you@mail.com'
+  {icon:'🟢',label:'WhatsApp', type:'link',url:''},   // e.g. 'https://wa.me/8801XXXXXXXXX'
+  {icon:'📍',label:'Location', type:'api', url:''},   // e.g. 'https://your-backend.com/api/location'
+  {icon:'🛠',label:'Support',  type:'api', url:''},
+];
+const $=id=>document.getElementById(id);
+const api=(m,u,b)=>fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
+async function logout(){await api('POST','/api/auth?action=logout');location.href='/'}
+
+ACTIONS.forEach((a,i)=>{
+  const b=document.createElement('button');b.className='tile';b.style.setProperty('--i',i);
+  const s=document.createElement('span');s.textContent=a.icon;b.append(s,a.label);
+  b.onclick=async()=>{
+    if(!a.url) return toast(a.label+': backend link set kora hoyni');
+    if(a.type==='link') return void(location.href=a.url);
+    try{const r=await fetch(a.url,{method:'POST'});toast(r.ok?a.label+' ✓ done':a.label+' failed')}catch{toast('Network error')}
+  };
+  $('grid').append(b);
+});
+
+async function load(){
+  const r=await api('GET','/api/users');if(!r.ok)return;
+  const us=await r.json();$('list').innerHTML='';
+  us.forEach((x,i)=>{
+    const d=document.createElement('div');d.className='row';d.style.animationDelay=i*60+'ms';
+    const s=document.createElement('span');s.textContent=x.username+' · '+x.role;
+    const b=document.createElement('button');b.className='mini';b.textContent='Delete';
+    b.onclick=async()=>{
+      if(!confirm(x.username+' delete korbe?'))return;
+      const r=await api('DELETE','/api/users?username='+encodeURIComponent(x.username));
+      if(r.ok){d.style.transition='.4s';d.style.opacity=0;d.style.transform='translateX(60px)';setTimeout(load,400);toast('Deleted')}
+      else $('e').textContent=(await r.json()).error;
+    };
+    d.append(s,b);$('list').append(d);
+  });
+}
+async function addUser(){
+  const r=await api('POST','/api/users',{username:$('nu').value,password:$('np').value,role:$('nr').value});
+  if(r.ok){$('nu').value=$('np').value='';$('e').textContent='';toast('User added');load()}else $('e').textContent=(await r.json()).error;
+}
+$('tg').onclick=()=>{const p=$('panel');p.classList.toggle('open');$('tg').textContent=p.classList.contains('open')?'Close':'Manage Users'};
+(async()=>{
+  const r=await api('GET','/api/auth?action=me');if(!r.ok)return location.href='/';
+  const me=await r.json();
+  $('name').textContent=me.username;$('av').textContent=me.username[0].toUpperCase();$('role').textContent=me.role;
+  if(me.role==='admin'){$('adminCard').hidden=false;load()}
+})();
+</script></body></html>
