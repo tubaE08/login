@@ -1,0 +1,1 @@
+{ "name": "login-system", "type": "module", "dependencies": { "@upstash/redis": "^1.34.0" } }
