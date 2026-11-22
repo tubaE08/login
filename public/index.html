@@ -1,0 +1,42 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Welcome</title><link rel="stylesheet" href="/style.css"></head><body>
+<div class="wrap"><div class="card" id="card">
+  <div class="badge">🔐</div>
+  <div id="head" class="swap"><h1 id="t">Welcome</h1><p class="sub" id="s">Login to continue your journey</p></div>
+  <div class="field"><input id="u" placeholder="Username" autocomplete="username"></div>
+  <div class="field"><input id="p" type="password" placeholder="Password" autocomplete="current-password"><button class="eye" type="button" onclick="eye(p,this)">👁</button></div>
+  <div class="extra" id="ex"><div class="field"><input id="c" type="password" placeholder="Confirm Password"></div></div>
+  <button class="btn" id="go">LOGIN</button>
+  <p class="err" id="e"></p>
+  <div class="switch"><span id="q">Don't have an account?</span><button class="plus" id="pl" aria-label="switch">+</button></div>
+</div></div>
+<script>
+let mode='login';
+const $=id=>document.getElementById(id);
+function eye(i,b){i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'👁':'🙈'}
+function ripple(b,ev){const r=document.createElement('i');r.className='ripple';const k=b.getBoundingClientRect(),s=Math.max(k.width,k.height);r.style.cssText=`width:${s}px;height:${s}px;left:${ev.clientX-k.left-s/2}px;top:${ev.clientY-k.top-s/2}px`;b.append(r);setTimeout(()=>r.remove(),600)}
+function setMode(m){
+  mode=m;const su=m==='signup';
+  $('head').classList.remove('swap');void $('head').offsetWidth;$('head').classList.add('swap');
+  $('t').textContent=su?'Create Account':'Welcome';
+  $('s').textContent=su?'Sign up to get started':'Login to continue your journey';
+  $('go').textContent=su?'SIGN UP':'LOGIN';
+  $('q').textContent=su?'Already have an account?':"Don't have an account?";
+  $('ex').classList.toggle('show',su);$('pl').classList.toggle('rot',su);$('e').textContent='';
+}
+$('pl').onclick=()=>setMode(mode==='login'?'signup':'login');
+$('go').onclick=async ev=>{
+  ripple($('go'),ev);
+  if(mode==='signup'&&$('p').value!==$('c').value) return fail('Password mile nai');
+  $('go').classList.add('load');
+  try{
+    const r=await fetch('/api/auth?action='+mode,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:$('u').value.trim(),password:$('p').value})});
+    const d=await r.json();
+    if(r.ok){$('card').style.transition='.5s';$('card').style.transform='scale(.9)';$('card').style.opacity=0;setTimeout(()=>location.href='/dashboard',450)}
+    else fail(d.error);
+  }catch{fail('Network error')}
+  $('go').classList.remove('load');
+};
+function fail(m){$('e').textContent=m;const c=$('card');c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake')}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+fetch('/api/auth?action=me').then(r=>{if(r.ok)location.href='/dashboard'});
+</script></body></html>
