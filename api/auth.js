@@ -13,11 +13,15 @@ export default async function handler(req, res) {
   }
   const { username = '', password = '' } = req.body || {};
   let users = await getUsers();
-  // Prothombar: ADMIN_USER / ADMIN_PASS env theke admin toiri hobe
-  if (!users.length && process.env.ADMIN_USER) {
-    users = [{ username: process.env.ADMIN_USER, pass: hash(process.env.ADMIN_PASS), role: 'admin', created: Date.now() }];
+
+  // ADMIN_USER na thakle auto toiri hobe
+  const AU = process.env.ADMIN_USER;
+  const AP = process.env.ADMIN_PASS;
+  if (AU && AP && !users.some((x) => x.username === AU)) {
+    users.push({ username: AU, pass: hash(AP), role: 'admin', created: Date.now() });
     await saveUsers(users);
   }
+
   if (a === 'signup') {
     if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) return res.status(400).json({ error: 'Username 3-20 ta letter/number/_ hobe' });
     if (password.length < 6) return res.status(400).json({ error: 'Password komopokkho 6 character' });
