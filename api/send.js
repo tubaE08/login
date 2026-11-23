@@ -7,8 +7,6 @@ function wait(map, key) {
   return left > 0 ? left : 0;
 }
 
-import { logToGithub } from './visit.js';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'POST only' });
@@ -71,7 +69,6 @@ export default async function handler(req, res) {
     } catch (_) {}
 
     if (!j) {
-      console.error('Non-JSON response:', r.status, text.slice(0, 300));
       return fail(502, 'API invalid response (HTTP ' + r.status + ')', text.slice(0, 300));
     }
 
@@ -82,20 +79,8 @@ export default async function handler(req, res) {
     ipHits.set(ip, Date.now());
     numHits.set(number, Date.now());
 
-    try {
-      await logToGithub(data => {
-        data.messages.push({
-          name: payload.name,
-          number,
-          business_name: payload.business_name,
-          time: new Date().toISOString()
-        });
-      });
-    } catch (_) {}
-
     return res.status(200).json({ ok: true, message: j.message || 'Message sent', raw: j });
   } catch (e) {
-    console.error('Handler fetch error:', e);
     return fail(
       500,
       e.name === 'AbortError'
