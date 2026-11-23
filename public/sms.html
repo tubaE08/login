@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Secret Text</title>
+  <style>
+    :root{
+      --neu-bg:#e8eef5;
+      --neu-light:#ffffff;
+      --neu-dark:#c8d3e0;
+      --neu-text:#1e293b;
+      --neu-muted:#64748b;
+      --neu-blue:#2563eb;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--neu-text);
+      background:linear-gradient(160deg,#f3f7fb 0%,#e3ebf4 100%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      overflow-x:hidden;
+      position:relative;
+    }
+
+    .wrap{
+      position:relative;
+      z-index:1;
+      width:100%;
+      max-width:400px;
+      animation:in .55s cubic-bezier(.2,.9,.3,1.1);
+    }
+
+    @keyframes in{
+      from{opacity:0;transform:translateY(24px) scale(.97)}
+    }
+
+    .neu-card{
+      position:relative;
+      width:100%;
+      background:var(--neu-bg);
+      border-radius:36px;
+      padding:28px 24px 24px;
+      box-shadow:16px 16px 32px rgba(163,177,198,.65),-16px -16px 32px rgba(255,255,255,.92);
+      text-align:center;
+    }
+
+    .neu-back{
+      position:absolute;
+      top:18px;
+      left:18px;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      border:none;
+      background:var(--neu-bg);
+      color:#334155;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:5px 5px 10px var(--neu-dark),-5px -5px 10px var(--neu-light);
+      transition:transform .12s ease;
+    }
+
+    .neu-back:active{
+      box-shadow:inset 3px 3px 6px var(--neu-dark),inset -3px -3px 6px var(--neu-light);
+    }
+
+    .neu-icon-ring{
+      width:86px;
+      height:86px;
+      margin:4px auto 16px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      box-shadow:10px 10px 20px var(--neu-dark),-10px -10px 20px var(--neu-light);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .neu-icon-inner{
+      width:62px;
+      height:62px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+    }
+
+    .neu-title{
+      font-size:1.55rem;
+      font-weight:800;
+      color:#0f172a;
+      letter-spacing:-.02em;
+      margin-bottom:5px;
+    }
+
+    .neu-title span{
+      color:var(--neu-blue);
+    }
+
+    .neu-sub{
+      font-size:.86rem;
+      color:var(--neu-muted);
+      font-weight:500;
+      margin-bottom:12px;
+    }
+
+    .disclaimer{
+      text-align:center;
+      font-size:11.5px;
+      line-height:1.45;
+      color:#475569;
+      background:var(--neu-bg);
+      border-radius:16px;
+      padding:9px 12px;
+      margin-bottom:10px;
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+    }
+
+    .visits{
+      text-align:center;
+      font-size:12px;
+      color:var(--neu-muted);
+      font-weight:600;
+      margin-bottom:18px;
+      letter-spacing:.4px;
+    }
+
+    .neu-field-group{
+      text-align:left;
+      margin-bottom:14px;
+    }
+
+    .neu-field-group label{
+      display:block;
+      font-size:11.5px;
+      font-weight:700;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      color:#475569;
+      margin:0 0 6px 4px;
+    }
+
+    .f{
+      position:relative;
+    }
+
+    .f i{
+      position:absolute;
+      left:15px;
+      top:50%;
+      transform:translateY(-50%);
+      font-style:normal;
+      font-size:15px;
+      opacity:.8;
+      pointer-events:none;
+    }
+
+    .neu-input{
+      width:100%;
+      padding:14px 16px 14px 42px;
+      border-radius:18px;
+      border:none;
+      outline:none;
+      font-size:.94rem;
+      color:#0f172a;
+      background:var(--neu-bg);
+      box-shadow:inset 6px 6px 12px var(--neu-dark),inset -6px -6px 12px var(--neu-light);
+      transition:box-shadow .2s ease;
+    }
+
+    .neu-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .neu-input:focus{
+      box-shadow:inset 7px 7px 14px #b8c5d4,inset -7px -7px 14px #ffffff;
+    }
+
+    button#b{
+      width:100%;
+      margin-top:10px;
+      padding:15px 20px;
+      border:none;
+      border-radius:999px;
+      font-size:.92rem;
+      font-weight:800;
+      letter-spacing:.06em;
+      color:var(--neu-blue);
+      background:var(--neu-bg);
+      cursor:pointer;
+      box-shadow:7px 7px 15px var(--neu-dark),-7px -7px 15px var(--neu-light);
+      transition:transform .12s ease,box-shadow .15s ease;
+    }
+
+    button#b:hover{
+      transform:translateY(-1px);
+    }
+
+    button#b:active{
+      transform:translateY(0);
+      box-shadow:inset 5px 5px 10px var(--neu-dark),inset -5px -5px 10px var(--neu-light);
+    }
+
+    button#b:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .bar{
+      height:6px;
+      border-radius:999px;
+      background:var(--neu-bg);
+      box-shadow:inset 2px 2px 5px var(--neu-dark),inset -2px -2px 5px var(--neu-light);
+      margin-top:12px;
+      overflow:hidden;
+      opacity:0;
+      transition:opacity .3s;
+    }
+
+    .bar.on{
+      opacity:1;
+    }
+
+    .bar div{
+      height:100%;
+      width:100%;
+      background:var(--neu-blue);
+      transform-origin:left;
+      transition:transform 1s linear;
+    }
+
+    .note{
+      font-size:11.5px;
+      color:var(--neu-muted);
+      text-align:center;
+      margin-top:12px;
+    }
+
+    .neu-divider{
+      height:1px;
+      background:rgba(148,163,184,.25);
+      margin:20px 0 12px;
+    }
+
+    .neu-contact-label{
+      font-size:.8rem;
+      color:var(--neu-muted);
+      font-weight:600;
+      margin-bottom:12px;
+    }
+
+    .neu-socials{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .neu-social-btn{
+      width:42px;
+      height:42px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      color:#1e293b;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:.95rem;
+      box-shadow:6px 6px 12px var(--neu-dark),-6px -6px 12px var(--neu-light);
+      transition:transform .15s ease;
+    }
+
+    .neu-social-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .neu-social-btn:active{
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+    }
+
+    .foot{
+      position:relative;
+      z-index:1;
+      font-size:.85rem;
+      color:var(--neu-muted);
+      font-weight:500;
+      text-align:center;
+    }
+
+    .foot b{
+      color:#0f172a;
+      font-weight:800;
+    }
+
+    .ov{
+      position:fixed;
+      inset:0;
+      z-index:10;
+      background:rgba(15,23,42,.38);
+      backdrop-filter:blur(5px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+    }
+
+    .ov.show{
+      display:flex;
+      animation:fade .2s;
+    }
+
+    @keyframes fade{
+      from{opacity:0}
+    }
+
+    .pop{
+      background:var(--neu-bg);
+      color:var(--neu-text);
+      border-radius:30px;
+      padding:28px 22px;
+      width:100%;
+      max-width:350px;
+      text-align:center;
+      animation:pp .35s cubic-bezier(.2,1.25,.4,1);
+      box-shadow:14px 14px 28px rgba(163,177,198,.75),-14px -14px 28px rgba(255,255,255,.95);
+    }
+
+    @keyframes pp{
+      from{transform:scale(.82) translateY(20px);opacity:0}
+    }
+
+    .ring{
+      width:76px;
+      height:76px;
+      margin:0 auto 14px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      font-size:34px;
+      font-weight:800;
+      background:var(--neu-bg);
+      color:#16a34a;
+      box-shadow:7px 7px 14px var(--neu-dark),-7px -7px 14px var(--neu-light);
+    }
+
+    .ring.err{
+      color:#dc2626;
+      animation:shake .45s;
+    }
+
+    .ring.wt{
+      color:var(--neu-blue);
+    }
+
+    @keyframes shake{
+      25%{transform:translateX(-8px)}
+      50%{transform:translateX(8px)}
+      75%{transform:translateX(-5px)}
+    }
+
+    .pop h3{
+      margin:0 0 6px;
+      font-size:1.3rem;
+      color:#0f172a;
+    }
+
+    .pop p{
+      margin:0 0 18px;
+      color:#475569;
+      font-size:.9rem;
+      word-break:break-word;
+    }
+
+    .pop button{
+      padding:11px 28px;
+      border:none;
+      border-radius:999px;
+      background:var(--neu-bg);
+      color:var(--neu-blue);
+      font-size:.9rem;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:6px 6px 12px var(--neu-dark),-6px -6px 12px var(--neu-light);
+    }
+
+    .pop button:active{
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+    }
+
+    .pop .devbtn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:10px;
+      padding:11px 18px;
+      border-radius:999px;
+      background:var(--neu-bg);
+      color:#1877f2;
+      text-decoration:none;
+      font-weight:700;
+      font-size:.84rem;
+      box-shadow:6px 6px 12px var(--neu-dark),-6px -6px 12px var(--neu-light);
+    }
+
+    .pop .btns{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top:4px;
+    }
+
+    .conf{
+      position:fixed;
+      top:-10px;
+      width:9px;
+      height:14px;
+      z-index:11;
+      animation:fall 2.2s ease-in forwards;
+    }
+
+    @keyframes fall{
+      to{transform:translateY(105vh) rotate(720deg)}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="neu-card">
+      <a href="/" class="neu-back" title="Back to Dashboard">←</a>
+
+      <div class="neu-icon-ring">
+        <div class="neu-icon-inner">🤫</div>
+      </div>
+
+      <h1 class="neu-title">Secret <span>Text</span></h1>
+      <p class="neu-sub">Message your crush</p>
+
+      <div class="disclaimer">⚠️ This website is only for entertainment purposes. Don't harm anyone.</div>
+      <div class="visits" id="visits">👁️ Visits: --</div>
+
+      <form id="f">
+        <div class="neu-field-group">
+          <label>Name</label>
+          <div class="f"><i>🙍</i><input name="name" class="neu-input" maxlength="40" placeholder="Your Message" required></div>
+        </div>
+
+        <div class="neu-field-group">
+          <label>Number</label>
+          <div class="f"><i>📱</i><input name="number" class="neu-input" type="tel" inputmode="numeric" maxlength="11" placeholder="01XXXXXXXXX" pattern="01[0-9]{9}" required></div>
+        </div>
+
+        <div class="neu-field-group">
+          <label>Your Message</label>
+          <div class="f"><i>🏪</i><input name="business_name" class="neu-input" minlength="3" maxlength="50" placeholder="Enter your message" required></div>
+        </div>
+
+        <button id="b">Send Message ➤</button>
+        <div class="bar" id="bar"><div id="fill"></div></div>
+        <div class="note">🛡️ Protected: 1 minute cooldown per user</div>
+      </form>
+
+      <div class="neu-divider"></div>
+      <div class="neu-contact-label">Developer Contact</div>
+
+      <div class="neu-socials">
+        <a href="https://www.facebook.com/share/1DgoxXLya4/?mibextid=wwXIfr" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Facebook">f</a>
+        <a href="https://instagram.com/efty.notfound" target="_blank"
