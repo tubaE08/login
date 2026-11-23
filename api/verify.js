@@ -44,17 +44,26 @@ export default async function handler(req, res) {
       }
     );
 
+    const rawText = await apiResponse.text();
+    let parsed = null;
+    try {
+      parsed = JSON.parse(rawText);
+    } catch (_) {}
+
     if (apiResponse.ok) {
+      const isSuccess = parsed && typeof parsed.success === 'boolean' ? parsed.success : true;
       return res.status(200).json({
-        success: true,
-        message: '✅ Request Send',
-        number: num
+        success: isSuccess,
+        message: (parsed && parsed.message) || (isSuccess ? '✅ Request Send' : '❌ Request Failed'),
+        number: num,
+        raw: parsed || rawText.slice(0, 200)
       });
     } else {
       return res.status(200).json({
         success: false,
         message: `❌ API Error (HTTP ${apiResponse.status})`,
-        number: num
+        number: num,
+        raw: parsed || rawText.slice(0, 200)
       });
     }
   } catch (error) {
