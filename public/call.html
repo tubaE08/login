@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Call Bomber</title>
+<style>
+:root{
+  --neu-bg:#e8eef5;
+  --neu-light:#ffffff;
+  --neu-dark:#c8d3e0;
+  --neu-text:#1e293b;
+  --neu-muted:#64748b;
+  --neu-blue:#2563eb;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0}
+body{
+  background:linear-gradient(160deg,#f3f7fb 0%,#e3ebf4 100%);
+  color:var(--neu-text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  min-height:100vh;
+}
+body.locked{overflow:hidden}
+
+/* header */
+.header{
+  background:var(--neu-bg);
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid rgba(148,163,184,.25);
+  box-shadow:0 8px 20px rgba(163,177,198,.35);
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.logo{
+  font-size:24px;
+  font-weight:800;
+  color:#0f172a;
+  letter-spacing:-.5px;
+}
+.logo span{color:var(--neu-blue)}
+.hright{display:flex;align-items:center;gap:10px}
+.speak{
+  background:var(--neu-bg);
+  border:0;
+  border-radius:50%;
+  width:42px;
+  height:42px;
+  font-size:18px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:5px 5px 10px var(--neu-dark),-5px -5px 10px var(--neu-light);
+  transition:transform .12s ease;
+}
+.speak:active{
+  box-shadow:inset 3px 3px 6px var(--neu-dark),inset -3px -3px 6px var(--neu-light);
+}
+.burger{
+  background:var(--neu-bg);
+  border:0;
+  border-radius:12px;
+  width:42px;
+  height:42px;
+  padding:9px;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+  box-shadow:5px 5px 10px var(--neu-dark),-5px -5px 10px var(--neu-light);
+}
+.burger:active{
+  box-shadow:inset 3px 3px 6px var(--neu-dark),inset -3px -3px 6px var(--neu-light);
+}
+.burger span{
+  display:block;
+  width:100%;
+  height:2.5px;
+  background:#1e293b;
+  border-radius:2px;
+}
+
+/* hero spacer */
+.hero{height:16px}
+
+/* cards */
+.wrap{padding:0 16px;position:relative}
+.card{
+  background:var(--neu-bg);
+  border-radius:34px;
+  padding:28px 24px 24px;
+  box-shadow:14px 14px 28px rgba(163,177,198,.65),-14px -14px 28px rgba(255,255,255,.92);
+  max-width:410px;
+  margin:22px auto;
+  scroll-margin-top:80px;
+}
+.card h2{margin:0 0 6px;font-size:22px;font-weight:800;color:#0f172a;text-align:center}
+.sub{margin:0 0 20px;color:var(--neu-muted);font-size:14px;text-align:center}
+
+.neu-icon-ring{
+  width:84px;
+  height:84px;
+  margin:0 auto 16px;
+  border-radius:50%;
+  background:var(--neu-bg);
+  box-shadow:9px 9px 18px var(--neu-dark),-9px -9px 18px var(--neu-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.neu-icon-inner{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:var(--neu-bg);
+  box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.field{
+  border:0;
+  border-radius:18px;
+  padding:12px 16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:var(--neu-bg);
+  box-shadow:inset 6px 6px 12px var(--neu-dark),inset -6px -6px 12px var(--neu-light);
+  transition:box-shadow .2s ease;
+}
+.field:focus-within{
+  box-shadow:inset 7px 7px 14px #b8c5d4,inset -7px -7px 14px #ffffff;
+}
+.field svg{flex:none}
+.field label{display:block;color:var(--neu-muted);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.field input{
+  width:100%;
+  border:0;
+  outline:0;
+  background:transparent;
+  font:inherit;
+  font-size:16px;
+  font-weight:700;
+  color:#0f172a;
+  padding:0;
+  margin:0;
+}
+.field input::placeholder{color:#94a3b8;font-weight:500}
+
+.btn{
+  width:100%;
+  margin-top:20px;
+  border:0;
+  border-radius:999px;
+  padding:15px 20px;
+  background:var(--neu-bg);
+  color:var(--neu-blue);
+  font-size:15px;
+  font-weight:800;
+  letter-spacing:.08em;
+  cursor:pointer;
+  box-shadow:7px 7px 15px var(--neu-dark),-7px -7px 15px var(--neu-light);
+  transition:transform .12s ease,box-shadow .15s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.65;cursor:not-allowed;transform:none}
+.btn:active{
+  box-shadow:inset 5px 5px 10px var(--neu-dark),inset -5px -5px 10px var(--neu-light);
+}
+
+/* system */
+.sys-box{
+  border-radius:18px;
+  padding:6px 16px;
+  background:var(--neu-bg);
+  box-shadow:inset 5px 5px 10px var(--neu-dark),inset -5px -5px 10px var(--neu-light);
+}
+.sys-row{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid rgba(148,163,184,.25);
+  font-size:14.5px;
+  font-weight:600;
+}
+.sys-row:last-child{border-bottom:0}
+.sys-row span:first-child{color:var(--neu-muted)}
+.online{color:#16a34a;font-weight:800}
+
+/* developer */
+.dev{text-align:center}
+.dev p{margin:6px 0;color:var(--neu-muted);font-size:14px;font-weight:500}
+.socials{display:flex;justify-content:center;gap:16px;margin:18px 0 10px}
+.social{
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  text-decoration:none;
+  background:var(--neu-bg);
+  box-shadow:6px 6px 12px var(--neu-dark),-6px -6px 12px var(--neu-light);
+  transition:transform .15s ease;
+}
+.social:hover{transform:translateY(-2px)}
+.social:active{
+  box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+}
+.social.ig{color:#e1306c}
+.social.fb{color:#1877f2}
+.social.tg{color:#27a7e7}
+.handle{font-size:13px;color:var(--neu-muted);margin-top:8px;font-weight:600}
+.copy{text-align:center;font-size:12px;color:var(--neu-muted);padding:6px 20px 34px}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.show{opacity:1;pointer-events:auto}
+.drawer{
+  position:fixed;
+  top:0;right:0;bottom:0;
+  width:78%;max-width:320px;
+  background:var(--neu-bg);
+  z-index:21;
+  transform:translateX(100%);
+  transition:transform .22s ease;
+  padding:20px 18px;
+  display:flex;flex-direction:column;
+  padding-top:max(20px,env(safe-area-inset-top));
+  box-shadow:-10px 0 25px rgba(163,177,198,.5);
+}
+.drawer.show{transform:none}
+.drawer-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.x{
+  background:var(--neu-bg);
+  border:0;
+  width:36px;height:36px;
+  border-radius:50%;
+  font-size:22px;line-height:1;
+  cursor:pointer;color:#1e293b;
+  box-shadow:5px 5px 10px var(--neu-dark),-5px -5px 10px var(--neu-light);
+}
+.menu a.item{
+  display:flex;align-items:center;gap:14px;
+  padding:13px 14px;margin-bottom:8px;
+  border-radius:16px;color:#1e293b;
+  text-decoration:none;font-size:16px;font-weight:700;
+  transition:box-shadow .15s ease,color .15s ease;
+}
+.menu a.item:active,.menu a.item:hover{
+  color:var(--neu-blue);
+  box-shadow:inset 5px 5px 10px var(--neu-dark),inset -5px -5px 10px var(--neu-light);
+}
+.menu a.item svg{flex:none}
+.menu-soc{margin-top:auto;padding-top:16px;border-top:1px solid rgba(148,163,184,.25)}
+.menu-soc .t{font-size:13px;color:var(--neu-muted);margin:0 0 12px 6px;font-weight:600}
+.menu-soc .socials{justify-content:flex-start;margin:0 0 10px 6px}
+.menu-soc .social{width:44px;height:44px;border-radius:50%}
+
+/* landing */
+.landing{
+  position:fixed;inset:0;z-index:100;
+  background:linear-gradient(160deg,#f3f7fb 0%,#e3ebf4 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px;
+  transition:opacity .45s ease,transform .45s ease;
+  overflow:hidden;
+}
+.landing.hide{opacity:0;transform:scale(1.04);pointer-events:none}
+.landing .inner{
+  position:relative;z-index:1;
+  max-width:390px;width:100%;
+  background:var(--neu-bg);
+  border-radius:36px;
+  padding:34px 26px;
+  box-shadow:16px 16px 32px rgba(163,177,198,.65),-16px -16px 32px rgba(255,255,255,.92);
+}
+.landing .l-logo{font-size:38px;font-weight:800;color:#0f172a;letter-spacing:-1px;margin-bottom:8px}
+.landing .l-logo span{color:var(--neu-blue)}
+.landing h1{margin:0 0 6px;font-size:22px;color:#0f172a}
+.landing p{margin:0 0 24px;color:var(--neu-muted);font-size:15px}
+.landing .btn{width:100%;margin:0;padding:15px 28px;font-size:16px}
+
+/* popup */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px;z-index:30}
+.overlay.show{display:flex}
+.modal{
+  background:var(--neu-bg);
+  border-radius:30px;
+  width:100%;max-width:360px;
+  padding:28px 22px 24px;
+  text-align:center;
+  animation:pop .18s ease-out;
+  box-shadow:14px 14px 28px rgba(163,177,198,.75),-14px -14px 28px rgba(255,255,255,.95);
+}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+.icon{
+  width:72px;height:72px;border-radius:50%;
+  margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:32px;font-weight:800;
+  background:var(--neu-bg);
+  box-shadow:7px 7px 14px var(--neu-dark),-7px -7px 14px var(--neu-light);
+}
+.icon.ok{color:#16a34a}
+.icon.bad{color:#dc2626}
+.modal h3{margin:0 0 6px;font-size:20px;font-weight:800;color:#0f172a}
+.modal .num{color:var(--neu-muted);font-size:14px;margin-bottom:16px;font-weight:600}
+.modal .btn{margin-top:0;padding:13px 24px;font-size:15px}
+</style>
+</head>
+<body class="locked">
+
+<!-- Landing -->
+<div class="landing" id="landing">
+ <div class="inner">
+  <div class="neu-icon-ring">
+   <div class="neu-icon-inner">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#2563eb"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+   </div>
+  </div>
+  <div class="l-logo">Call <span>Bomber</span></div>
+  <h1>Welcome</h1>
+  <p>Call Bomber</p>
+  <button class="btn" id="enter" type="button">🔊 Visit our Site</button>
+ </div>
+</div>
+
+<div class="header">
+ <div class="logo">Call <span>Bomber</span></div>
+ <div class="hright">
+  <button class="speak" id="speak" aria-label="Play welcome voice" title="Play voice">🔊</button>
+  <button class="burger" id="open" aria-label="Open menu"><span></span><span></span><span></span></button>
+ </div>
+</div>
+<div class="hero"></div>
+
+<div class="wrap">
+ <!-- Dashboard -->
+ <div class="card" id="dashboard">
+  <div class="neu-icon-ring">
+   <div class="neu-icon-inner">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="#2563eb"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+   </div>
+  </div>
+  <h2>call bomberr</h2>
+  <p class="sub">Enter a phone number to check it.</p>
+  <form id="form">
+   <div class="field">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#2563eb"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>
+    <div style="flex:1;min-width:0">
+     <label for="number">Phone Number</label>
+     <input id="number" type="tel" placeholder="019XXXXXXXX" required>
+    </div>
+   </div>
+   <button class="btn" id="submit" type="submit">VERIFY</button>
+  </form>
+ </div>
+
+ <!-- System -->
+ <div class="card" id="system">
+  <h2>System</h2>
+  <p class="sub">Current service status.</p>
+  <div class="sys-box">
+   <div class="sys-row"><span>Status</span><span class="online">● Online</span></div>
+   <div class="sys-row"><span>Endpoint</span><span>/api/verify</span></div>
+   <div class="sys-row"><span>Method</span><span>GET</span></div>
+  </div>
+ </div>
+
+ <!-- Developer -->
+ <div class="card dev" id="developer">
+  <h2>Developer</h2>
+  <p>Developed with ❤️ by Efty</p>
+  <div class="socials">
+   <a class="social ig" href="https://www.instagram.com/efty.notfound?vrfl=ZXpsOHlpZmZqZ28z&utm_source=qr" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+   </a>
+   <a class="social fb" href="https://www.facebook.com/share/1CYjkMi4y7/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v8h4v-8h3l1-4h-4V8z"/></svg>
+   </a>
+   <a class="social tg" href="https://t.me/Efty67" target="_blank" rel="noopener" aria-label="Telegram">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 3.2 2.6 10.6c-1 .4-1 1.1-.2 1.3l4.9 1.5 1.9 5.8c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.4-2.3 4.9 3.6c.9.5 1.5.2 1.8-.8l3.2-15.2c.3-1.3-.5-1.9-1.5-1.5zM8.2 13l10.6-6.7c.5-.3 1-.1.6.2l-8.6 7.8-.3 3.6z"/></svg>
+   </a>
+  </div>
+  <div class="handle">@Efty67 on Telegram</div>
+ </div>
+ <div class="copy">© 2026 team ex call bomber Dashboard</div>
+</div>
+
+<!-- Drawer -->
+<div class="scrim" id="scrim"></div>
+<nav class="drawer" id="drawer">
+ <div class="drawer-top">
+  <div class="logo">Call Bomber</div>
+  <button class="x" id="close-menu" aria-label="Close menu">×</button>
+ </div>
+ <div class="menu">
+  <a class="item" href="#dashboard">
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dashboard</a>
+  <a class="item" href="#system">
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>System</a>
+  <a class="item" href="#developer">
+   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Developer</a>
+ </div>
+ <div class="menu-soc">
+  <p class="t">Contact developer</p>
+  <div class="socials">
+   <a class="social ig" href="https://www.instagram.com/efty.notfound?vrfl=ZXpsOHlpZmZqZ28z&utm_source=qr" target="_blank" rel="noopener" aria-label="Instagram">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+   </a>
+   <a class="social fb" href="https://www.facebook.com/share/1CYjkMi4y7/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v2H7v4h3v8h4v-8h3l1-4h-4V8z"/></svg>
+   </a>
+   <a class="social tg" href="https://t.me/Efty67" target="_blank" rel="noopener" aria-label="Telegram">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.8 3.2 2.6 10.6c-1 .4-1 1.1-.2 1.3l4.9 1.5 1.9 5.8c.2.6.4.8.9.8.4 0 .6-.2.9-.5l2.4-2.3 4.9 3.6c.9.5 1.5.2 1.8-.8l3.2-15.2c.3-1.3-.5-1.9-1.5-1.5zM8.2 13l10.6-6.7c.5-.3 1-.1.6.2l-8.6 7.8-.3 3.6z"/></svg>
+   </a>
+  </div>
+ </div>
+</nav>
+
+<!-- Popup -->
+<div class="overlay" id="overlay">
+ <div class="modal">
+  <div class="icon" id="icon"></div>
+  <h3 id="title"></h3>
+  <div class="num" id="shownum"></div>
+  <button class="btn" id="close" type="button">OK</button>
+ </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+
+/* welcome audio */
+const welcomeAudio=new Audio('welcome.mp3');
+welcomeAudio.preload='auto';
+function playWelcome(){
+ try{
+  welcomeAudio.currentTime=0;
+  const p=welcomeAudio.play();
+  if(p&&p.catch)p.catch(()=>{});
+ }catch(e){}
+}
+
+/* landing */
+$('enter').addEventListener('click',()=>{
+ playWelcome();
+ $('landing').classList.add('hide');
+ document.body.classList.remove('locked');
+ window.scrollTo(0,0);
+ setTimeout(()=>{const l=$('landing');if(l)l.remove()},500);
+});
+$('speak').addEventListener('click',playWelcome);
+
+/* menu */
+function menu(open){
+ $('drawer').classList.toggle('show',open);
+ $('scrim').classList.toggle('show',open);
+}
+$('open').addEventListener('click',()=>menu(true));
+$('close-menu').addEventListener('click',()=>menu(false));
+$('scrim').addEventListener('click',()=>menu(false));
+document.querySelectorAll('.menu a.item').forEach(a=>a.addEventListener('click',()=>menu(false)));
+
+/* popup */
+function showPopup(ok, number, title){
+ $('icon').className='icon '+(ok?'ok':'bad');
+ $('icon').textContent=ok?'✓':'✕';
+ $('title').textContent=title;
+ $('shownum').textContent=number;
+ $('overlay').classList.add('show');
+}
+$('close').addEventListener('click',()=>$('overlay').classList.remove('show'));
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))$('overlay').classList.remove('show')});
+
+/* verify */
+$('form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const number=$('number').value.trim();
+
+ if(!/^\+?[0-9]{8,15}$/.test(number)){
+  showPopup(false, number, '❌ Invalid Number');
+  return;
+ }
+
+ const btn=$('submit');
+ btn.disabled=true;
+ btn.textContent='CHECKING...';
+
+ try{
+  const r=await fetch(location.origin+'/api/verify?num='+encodeURIComponent(number),{
+   method:'GET',
+   headers:{'Accept':'application/json'},
+   cache:'no-store'
+  });
+  const data=await r.json();
+  if(data.success===true){
+   showPopup(true, number, '✅ Request Send');
+  } else {
+   showPopup(false, number, '❌ Request Failed');
+  }
+ }catch(err){
+  showPopup(false, number, '❌ Request Failed');
+ }
+
+ btn.disabled=false;
+ btn.textContent='VERIFY';
+});
+</script>
+</body>
+</html>
