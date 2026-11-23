@@ -463,7 +463,7 @@
       <form id="f">
         <div class="neu-field-group">
           <label>Name</label>
-          <div class="f"><i>🙍</i><input name="name" class="neu-input" maxlength="40" placeholder="Your Message" required></div>
+          <div class="f"><i>🙍</i><input name="name" class="neu-input" maxlength="40" placeholder="Your Name" required></div>
         </div>
 
         <div class="neu-field-group">
@@ -486,4 +486,80 @@
 
       <div class="neu-socials">
         <a href="https://www.facebook.com/share/1DgoxXLya4/?mibextid=wwXIfr" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Facebook">f</a>
-        <a href="https://instagram.com/efty.notfound" target="_blank"
+        <a href="https://instagram.com/efty.notfound" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Instagram">◎</a>
+        <a href="https://t.me/Efty67" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Telegram">⛨</a>
+      </div>
+
+      <div class="foot">Developed by <a href="https://www.facebook.com/share/1DgoxXLya4/?mibextid=wwXIfr" target="_blank" rel="noopener" style="text-decoration:none"><b>Efty</b></a> ⚡</div>
+    </div>
+  </div>
+
+  <div class="ov" id="ov">
+    <div class="pop">
+      <div class="ring" id="ring"></div>
+      <h3 id="pt"></h3>
+      <p id="pm"></p>
+      <div class="btns">
+        <button id="ok">OK</button>
+        <a id="devlink" class="devbtn" href="https://www.facebook.com/share/1DgoxXLya4/?mibextid=wwXIfr" target="_blank" rel="noopener" style="display:none">🕵️‍♂️ রহস্য দেখুন (Developer)</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $=id=>document.getElementById(id);
+    const f=$('f'),b=$('b'),ov=$('ov'),COOL=60;
+    const BAD=['madarchod','madarchood','behenchod','chutiya','chutia','harami','haramzada','kutta','kutte','shuar','shala','saala','bitch','bastard','fuck','fucker','fucking','asshole','slut','whore','magi','magir','khanki','khankir','chodon','chod','choda','bokachoda','gandu','laura','lund','dalal','khanki magi','porn'];
+    function hasAbuse(t){const low=(t||'').toLowerCase();return BAD.some(w=>low.includes(w))}
+    fetch('/api/visit').then(r=>r.json()).then(d=>{$('visits').textContent='👁️ Visits: '+(d.visits??'N/A')}).catch(()=>{$('visits').textContent='👁️ Visits: N/A'});
+    function popup(t,title,msg){
+      $('ring').className='ring '+(t=='ok'?'':t);
+      $('ring').textContent={ok:'✓',err:'✕',wt:'⏳'}[t];
+      $('pt').textContent=title;
+      $('pm').textContent=msg;
+      ov.classList.add('show');
+      $('devlink').style.display=(t=='ok')?'inline-flex':'none';
+      if(t=='ok'){setTimeout(()=>{try{window.open('https://www.facebook.com/share/1DgoxXLya4/?mibextid=wwXIfr','_blank')}catch(_){}},1400)}
+      if(t=='ok')for(let i=0;i<40;i++){
+        const c=document.createElement('div');c.className='conf';
+        c.style.left=Math.random()*100+'vw';
+        c.style.background=['#2563eb','#22c55e','#38bdf8','#0f172a','#f59e0b'][i%5];
+        c.style.animationDelay=Math.random()*.5+'s';
+        document.body.appendChild(c);
+        setTimeout(()=>c.remove(),3000);
+      }
+    }
+    $('ok').onclick=()=>ov.classList.remove('show');
+    ov.onclick=e=>{if(e.target===ov)ov.classList.remove('show')};
+    let tm;
+    function cooldown(left){
+      clearInterval(tm);$('bar').classList.add('on');b.disabled=true;
+      const tick=()=>{
+        b.textContent='⏳ Wait '+left+'s';
+        $('fill').style.transform='scaleX('+(left/COOL)+')';
+        if(left--<=0){clearInterval(tm);b.disabled=false;b.textContent='Send Message ➤';$('bar').classList.remove('on')}
+      };
+      tick();tm=setInterval(tick,1000);
+    }
+    function remaining(){try{const l=+localStorage.getItem('last')||0;return Math.max(0,COOL-Math.floor((Date.now()-l)/1000))}catch(_){return 0}}
+    if(remaining())cooldown(remaining());
+    f.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const vals=Object.fromEntries(new FormData(f));
+      if(hasAbuse(vals.name)||hasAbuse(vals.business_name)){
+        popup('err','ভাষা ঠিক করুন','আপনার ভাষা ঠিক করে লিখুন। গালিগালাজ/ক্ষতিকর শব্দ ব্যবহার করা যাবে না।');return}
+      const r0=remaining();if(r0){popup('wt','Please wait','আবার পাঠাতে '+r0+' সেকেন্ড অপেক্ষা করুন');return}
+      b.disabled=true;b.textContent='Sending... ✈️';
+      try{
+        const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(vals)});
+        const d=await r.json();
+        if(r.status==429){try{localStorage.setItem('last',Date.now()-(COOL-d.wait)*1000)}catch(_){}
+          popup('wt','Please wait',d.error);cooldown(d.wait);return}
+        if(d.ok){try{localStorage.setItem('last',Date.now())}catch(_){}
+          popup('ok','Message Sent! 🎉',(d.message||'Successfully sent')+' → '+f.number.value);f.reset();cooldown(COOL);}
+        else{popup('err','Failed',d.error||'Something went wrong');b.disabled=false;b.textContent='Send Message ➤'}
+      }catch(_){popup('err','Network error','Internet check kore abar try korun');b.disabled=false;b.textContent='Send Message ➤'}
+    });
+  </script>
+</body>
+</html>
