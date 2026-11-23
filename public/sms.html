@@ -388,9 +388,10 @@
     .pop p{
       margin:0 0 18px;
       color:#475569;
-      font-size:.9rem;
+      font-size:.88rem;
       word-break:break-word;
       white-space:pre-wrap;
+      text-align:left;
     }
 
     .pop button{
@@ -512,7 +513,12 @@
     const f=$('f'),b=$('b'),ov=$('ov'),COOL=60;
     const BAD=['madarchod','madarchood','behenchod','chutiya','chutia','harami','haramzada','kutta','kutte','shuar','shala','saala','bitch','bastard','fuck','fucker','fucking','asshole','slut','whore','magi','magir','khanki','khankir','chodon','chod','choda','bokachoda','gandu','laura','lund','dalal','khanki magi','porn'];
     function hasAbuse(t){const low=(t||'').toLowerCase();return BAD.some(w=>low.includes(w))}
-    fetch('/api/visit').then(r=>r.json()).then(d=>{$('visits').textContent='👁️ Visits: '+(d.visits??'N/A')}).catch(()=>{$('visits').textContent='👁️ Visits: N/A'});
+
+    fetch('/api/visit')
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{if(d&&d.visits!==undefined)$('visits').textContent='👁️ Visits: '+d.visits;else $('visits').style.display='none';})
+      .catch(()=>{$('visits').style.display='none';});
+
     function popup(t,title,msg){
       $('ring').className='ring '+(t=='ok'?'':t);
       $('ring').textContent={ok:'✓',err:'✕',wt:'⏳'}[t];
@@ -545,13 +551,15 @@
     function remaining(){try{const l=+localStorage.getItem('last')||0;return Math.max(0,COOL-Math.floor((Date.now()-l)/1000))}catch(_){return 0}}
     if(remaining())cooldown(remaining());
 
-    function formatApiResponse(status, rawText, jsonData){
-      if(jsonData && typeof jsonData === 'object'){
-        if(jsonData.error) return 'HTTP ' + status + ': ' + jsonData.error;
-        if(jsonData.message) return 'HTTP ' + status + ': ' + jsonData.message + '\n' + JSON.stringify(jsonData, null, 2);
-        return 'HTTP ' + status + ':\n' + JSON.stringify(jsonData, null, 2);
+    function formatApiResponse(status, rawText, d){
+      if(d && typeof d === 'object'){
+        const lines = ['Status: HTTP ' + status];
+        if(d.message) lines.push('Message: ' + d.message);
+        if(d.error) lines.push('Error: ' + d.error);
+        lines.push('Response: ' + JSON.stringify(d, null, 2));
+        return lines.join('\n');
       }
-      return 'HTTP ' + status + ':\n' + (rawText || 'Empty response');
+      return 'Status: HTTP ' + status + '\nResponse: ' + (rawText || 'Empty response');
     }
 
     f.addEventListener('submit',async e=>{
@@ -583,7 +591,7 @@
 
         if(r.ok && d && d.ok){
           try{localStorage.setItem('last',Date.now())}catch(_){}
-          popup('ok','Message Sent! 🎉',apiOutput+'\n→ '+f.number.value);
+          popup('ok','Message Sent!',apiOutput+'\nNumber: '+f.number.value);
           f.reset();
           cooldown(COOL);
         }else{
@@ -600,4 +608,3 @@
   </script>
 </body>
 </html>
-
