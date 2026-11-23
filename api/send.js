@@ -10,19 +10,33 @@ function wait(map, key) {
 import { logToGithub } from './visit.js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'POST only' });
+  }
+
   const { name, number, business_name } = req.body || {};
-  if (!name || !number || !business_name) return res.status(400).json({ ok: false, error: 'সব ঘর পূরণ করুন' });
-  if (!/^01\d{9}$/.test(number)) return res.status(400).json({ ok: false, error: 'নম্বর ঠিক নয় (01XXXXXXXXX)' });
-  if (name.trim().length > 40) return res.status(400).json({ ok: false, error: 'Name too long' });
-  if (business_name.trim().length < 3 || business_name.trim().length > 50) return res.status(400).json({ ok: false, error: 'Business name 3 theke 50 akkhor hote hobe' });
+  if (!name || !number || !business_name) {
+    return res.status(400).json({ ok: false, error: 'সব ঘর পূরণ করুন' });
+  }
+  if (!/^01\d{9}$/.test(number)) {
+    return res.status(400).json({ ok: false, error: 'নম্বর ঠিক নয় (01XXXXXXXXX)' });
+  }
+  if (name.trim().length > 40) {
+    return res.status(400).json({ ok: false, error: 'Name too long' });
+  }
+  if (business_name.trim().length < 3 || business_name.trim().length > 50) {
+    return res.status(400).json({ ok: false, error: 'Business name 3 theke 50 akkhor hote hobe' });
+  }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
   const w = Math.max(wait(ipHits, ip), wait(numHits, number));
-  if (w > 0) return res.status(429).json({ ok: false, wait: w, error: `আবার পাঠাতে ${w} সেকেন্ড অপেক্ষা করুন` });
+  if (w > 0) {
+    return res.status(429).json({ ok: false, wait: w, error: `আবার পাঠাতে ${w} সেকেন্ড অপেক্ষা করুন` });
+  }
 
   const fail = (status, error, raw) => {
-    ipHits.delete(ip); numHits.delete(number); // failed attempts don't burn the cooldown
+    ipHits.delete(ip);
+    numHits.delete(number);
     return res.status(status).json({ ok: false, error, raw });
   };
 
@@ -34,7 +48,8 @@ export default async function handler(req, res) {
 
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 15000);
+    const timer = setTimeout(() => ctrl.abort(), 10000);
+
     const r = await fetch('https://api-merchant.carrybee.com/api/v2/merchant/register', {
       method: 'POST',
       signal: ctrl.signal,
@@ -51,24 +66,42 @@ export default async function handler(req, res) {
 
     const text = await r.text();
     let j = null;
-    try { j = JSON.parse(text); } catch (_) {}
+    try {
+      j = JSON.parse(text);
+    } catch (_) {}
 
-    if (!j) return fail(502, 'API invalid response (HTTP ' + r.status + ')', text.slice(0, 300));
+    if (!j) {
+      console.error('Non-JSON response:', r.status, text.slice(0, 300));
+      return fail(502, 'API invalid response (HTTP ' + r.status + ')', text.slice(0, 300));
+    }
 
     if (!r.ok || j.success === false) {
       return fail(200, j.message || ('API error (HTTP ' + r.status + ')'), j);
     }
 
-    // success: this request did consume the cooldown, so set it
     ipHits.set(ip, Date.now());
     numHits.set(number, Date.now());
+
     try {
       await logToGithub(data => {
-        data.messages.push({ name: payload.name, number, business_name: payload.business_name, time: new Date().toISOString() });
+        data.messages.push({
+          name: payload.name,
+          number,
+          business_name: payload.business_name,
+          time: new Date().toISOString()
+        });
       });
-    } catch (_) { /* logging is best-effort, never block the user's response */ }
+    } catch (_) {}
+
     return res.status(200).json({ ok: true, message: j.message || 'Message sent', raw: j });
   } catch (e) {
-    return fail(500, e.name === 'AbortError' ? 'API timeout (15s)' : 'Connect failed: ' + (e.cause?.code || e.message));
+    console.error('Handler fetch error:', e);
+    return fail(
+      500,
+      e.name === 'AbortError'
+        ? 'API timeout'
+        : 'Connect failed: ' + (e.cause?.code || e.message)
+    );
   }
 }
+
