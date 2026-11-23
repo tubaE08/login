@@ -1,5 +1,4 @@
 export default async function handler(req, res) {
-
   // CORS — যেকোনো origin থেকে call করা যাবে
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -36,7 +35,7 @@ export default async function handler(req, res) {
 
   try {
     const apiResponse = await fetch(
-      `https://darktoolshub.net/sms/call.php?num=${encodeURIComponent(num)}`,
+      `https://apicall-coral.vercel.app/api?num=${encodeURIComponent(num)}`,
       {
         method: 'GET',
         headers: {
@@ -46,23 +45,19 @@ export default async function handler(req, res) {
     );
 
     if (apiResponse.ok) {
-      // সফল হলে
       return res.status(200).json({
         success: true,
         message: '✅ Request Send',
         number: num
       });
     } else {
-      // বাইরের API ফেইল হলে
       return res.status(200).json({
         success: false,
         message: `❌ API Error (HTTP ${apiResponse.status})`,
         number: num
       });
     }
-
   } catch (error) {
-    // যেকোনো এরর
     return res.status(200).json({
       success: false,
       message: `❌ Server Error: ${error.message}`,
@@ -70,3 +65,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
