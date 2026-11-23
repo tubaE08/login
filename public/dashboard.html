@@ -32,16 +32,12 @@
 </div>
 <div class="toast" id="toast"></div>
 <script>
-/* ===== TOMAR BACKEND LINK EKHANE BOSHAO =====
-   type:'link' → link/tel:/mailto: open hobe
-   type:'api'  → tomar backend e POST request jabe (url e API link dao)
-   url faka thakle "link set kora hoyni" message dekhabe */
 const ACTIONS=[
-  {icon:'📞',label:'Call',     type:'link',url:''},   // e.g. 'tel:+8801XXXXXXXXX'
-  {icon:'💬',label:'SMS',      type:'link',url:''},   // e.g. 'sms:+8801XXXXXXXXX'
-  {icon:'✉️',label:'Email',    type:'link',url:''},   // e.g. 'mailto:you@mail.com'
-  {icon:'🟢',label:'WhatsApp', type:'link',url:''},   // e.g. 'https://wa.me/8801XXXXXXXXX'
-  {icon:'📍',label:'Location', type:'api', url:''},   // e.g. 'https://your-backend.com/api/location'
+  {icon:'📞',label:'Call',     type:'link',url:''},
+  {icon:'💬',label:'SMS',      type:'link',url:''},
+  {icon:'✉️',label:'Email',    type:'link',url:'/email.html'},
+  {icon:'🟢',label:'WhatsApp', type:'link',url:''},
+  {icon:'📍',label:'Location', type:'api', url:''},
   {icon:'🛠',label:'Support',  type:'api', url:''},
 ];
 const $=id=>document.getElementById(id);
@@ -88,3 +84,4 @@ $('tg').onclick=()=>{const p=$('panel');p.classList.toggle('open');$('tg').textC
   if(me.role==='admin'){$('adminCard').hidden=false;load()}
 })();
 </script></body></html>
+
