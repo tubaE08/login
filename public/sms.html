@@ -460,7 +460,7 @@
       <p class="neu-sub">Message your crush</p>
 
       <div class="disclaimer">⚠️ This website is only for entertainment purposes. Don't harm anyone.</div>
-      <div class="visits" id="visits">👁️ Visits: --</div>
+      <div class="visits" id="visits" style="display:none">👁️ Visits: --</div>
 
       <form id="f">
         <div class="neu-field-group">
@@ -516,8 +516,13 @@
 
     fetch('/api/visit')
       .then(r=>r.ok?r.json():null)
-      .then(d=>{if(d&&d.visits!==undefined)$('visits').textContent='👁️ Visits: '+d.visits;else $('visits').style.display='none';})
-      .catch(()=>{$('visits').style.display='none';});
+      .then(d=>{
+        if(d && d.visits !== undefined){
+          $('visits').textContent='👁️ Visits: '+d.visits;
+          $('visits').style.display='block';
+        }
+      })
+      .catch(()=>{});
 
     function popup(t,title,msg){
       $('ring').className='ring '+(t=='ok'?'':t);
@@ -564,8 +569,12 @@
 
     f.addEventListener('submit',async e=>{
       e.preventDefault();
-      const vals=Object.fromEntries(new FormData(f));
-      if(hasAbuse(vals.name)||hasAbuse(vals.business_name)){
+      const cleanVals={
+        name: f.name.value.trim(),
+        number: f.number.value.trim(),
+        business_name: f.business_name.value.trim()
+      };
+      if(hasAbuse(cleanVals.name)||hasAbuse(cleanVals.business_name)){
         popup('err','ভাষা ঠিক করুন','আপনার ভাষা ঠিক করে লিখুন। গালিগালাজ/ক্ষতিকর শব্দ ব্যবহার করা যাবে না।');return}
       const r0=remaining();if(r0){popup('wt','Please wait','আবার পাঠাতে '+r0+' সেকেন্ড অপেক্ষা করুন');return}
       b.disabled=true;b.textContent='Sending... ✈️';
@@ -573,7 +582,7 @@
         const r=await fetch('/api/send',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(vals)
+          body:JSON.stringify(cleanVals)
         });
         const rawText=await r.text();
         let d=null;
@@ -591,7 +600,7 @@
 
         if(r.ok && d && d.ok){
           try{localStorage.setItem('last',Date.now())}catch(_){}
-          popup('ok','Message Sent!',apiOutput+'\nNumber: '+f.number.value);
+          popup('ok','Message Sent!',apiOutput+'\nNumber: '+cleanVals.number);
           f.reset();
           cooldown(COOL);
         }else{
@@ -608,3 +617,4 @@
   </script>
 </body>
 </html>
+
