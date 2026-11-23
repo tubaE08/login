@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head> 
+  <script>
+fetch('/api/auth?action=me').then(r=>{ if(!r.ok) location.href='/index.html'; });
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="light">
