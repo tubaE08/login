@@ -390,6 +390,7 @@
       color:#475569;
       font-size:.9rem;
       word-break:break-word;
+      white-space:pre-wrap;
     }
 
     .pop button{
@@ -543,6 +544,16 @@
     }
     function remaining(){try{const l=+localStorage.getItem('last')||0;return Math.max(0,COOL-Math.floor((Date.now()-l)/1000))}catch(_){return 0}}
     if(remaining())cooldown(remaining());
+
+    function formatApiResponse(status, rawText, jsonData){
+      if(jsonData && typeof jsonData === 'object'){
+        if(jsonData.error) return 'HTTP ' + status + ': ' + jsonData.error;
+        if(jsonData.message) return 'HTTP ' + status + ': ' + jsonData.message + '\n' + JSON.stringify(jsonData, null, 2);
+        return 'HTTP ' + status + ':\n' + JSON.stringify(jsonData, null, 2);
+      }
+      return 'HTTP ' + status + ':\n' + (rawText || 'Empty response');
+    }
+
     f.addEventListener('submit',async e=>{
       e.preventDefault();
       const vals=Object.fromEntries(new FormData(f));
@@ -551,15 +562,42 @@
       const r0=remaining();if(r0){popup('wt','Please wait','আবার পাঠাতে '+r0+' সেকেন্ড অপেক্ষা করুন');return}
       b.disabled=true;b.textContent='Sending... ✈️';
       try{
-        const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(vals)});
-        const d=await r.json();
-        if(r.status==429){try{localStorage.setItem('last',Date.now()-(COOL-d.wait)*1000)}catch(_){}
-          popup('wt','Please wait',d.error);cooldown(d.wait);return}
-        if(d.ok){try{localStorage.setItem('last',Date.now())}catch(_){}
-          popup('ok','Message Sent! 🎉',(d.message||'Successfully sent')+' → '+f.number.value);f.reset();cooldown(COOL);}
-        else{popup('err','Failed',d.error||'Something went wrong');b.disabled=false;b.textContent='Send Message ➤'}
-      }catch(_){popup('err','Network error','Internet check kore abar try korun');b.disabled=false;b.textContent='Send Message ➤'}
+        const r=await fetch('/api/send',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(vals)
+        });
+        const rawText=await r.text();
+        let d=null;
+        try{d=JSON.parse(rawText)}catch(_){}
+
+        const apiOutput=formatApiResponse(r.status, rawText, d);
+
+        if(r.status==429){
+          const waitSec=(d && typeof d.wait==='number') ? d.wait : COOL;
+          try{localStorage.setItem('last',Date.now()-(COOL-waitSec)*1000)}catch(_){}
+          popup('wt','Please wait',apiOutput);
+          cooldown(waitSec);
+          return;
+        }
+
+        if(r.ok && d && d.ok){
+          try{localStorage.setItem('last',Date.now())}catch(_){}
+          popup('ok','Message Sent! 🎉',apiOutput+'\n→ '+f.number.value);
+          f.reset();
+          cooldown(COOL);
+        }else{
+          popup('err','API Response',apiOutput);
+          b.disabled=false;
+          b.textContent='Send Message ➤';
+        }
+      }catch(err){
+        popup('err','Request Failed',(err && err.message) ? err.message : String(err));
+        b.disabled=false;
+        b.textContent='Send Message ➤';
+      }
     });
   </script>
 </body>
 </html>
+
