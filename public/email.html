@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Email Bomber</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root{
+      --neu-bg:#e8eef5;
+      --neu-light:#ffffff;
+      --neu-dark:#c8d3e0;
+      --neu-text:#1e293b;
+      --neu-muted:#64748b;
+      --neu-blue:#2563eb;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      background:linear-gradient(160deg,#f3f7fb 0%,#e3ebf4 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      color:var(--neu-text);
+    }
+
+    .neu-card{
+      position:relative;
+      width:100%;
+      max-width:390px;
+      background:var(--neu-bg);
+      border-radius:36px;
+      padding:32px 26px 26px;
+      box-shadow:16px 16px 32px rgba(163,177,198,.65),-16px -16px 32px rgba(255,255,255,.92);
+      text-align:center;
+    }
+
+    .neu-back{
+      position:absolute;
+      top:18px;
+      left:18px;
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      border:none;
+      background:var(--neu-bg);
+      color:#334155;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:5px 5px 10px var(--neu-dark),-5px -5px 10px var(--neu-light);
+      transition:transform .12s ease;
+    }
+    .neu-back:active{
+      box-shadow:inset 3px 3px 6px var(--neu-dark),inset -3px -3px 6px var(--neu-light);
+    }
+
+    .neu-icon-ring{
+      width:90px;
+      height:90px;
+      margin:6px auto 20px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      box-shadow:10px 10px 20px var(--neu-dark),-10px -10px 20px var(--neu-light);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .neu-icon-inner{
+      width:64px;
+      height:64px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .neu-title{
+      font-size:1.6rem;
+      font-weight:800;
+      color:#0f172a;
+      letter-spacing:-.02em;
+      margin-bottom:6px;
+    }
+
+    .neu-sub{
+      font-size:.9rem;
+      color:var(--neu-muted);
+      font-weight:500;
+      margin-bottom:24px;
+    }
+
+    .neu-input-wrap{
+      margin-bottom:16px;
+    }
+
+    .neu-input{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:18px;
+      padding:15px 18px;
+      font-size:.95rem;
+      color:#0f172a;
+      background:var(--neu-bg);
+      box-shadow:inset 6px 6px 12px var(--neu-dark),inset -6px -6px 12px var(--neu-light);
+      transition:box-shadow .2s ease;
+    }
+
+    .neu-input::placeholder{
+      color:#94a3b8;
+    }
+
+    .neu-input:focus{
+      box-shadow:inset 7px 7px 14px #b8c5d4,inset -7px -7px 14px #ffffff;
+    }
+
+    .neu-submit-btn{
+      width:100%;
+      margin-top:8px;
+      border:none;
+      border-radius:999px;
+      padding:15px 20px;
+      background:var(--neu-bg);
+      color:var(--neu-blue);
+      font-size:.92rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      cursor:pointer;
+      box-shadow:7px 7px 15px var(--neu-dark),-7px -7px 15px var(--neu-light);
+      transition:transform .12s ease,box-shadow .15s ease;
+    }
+
+    .neu-submit-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .neu-submit-btn:active{
+      transform:translateY(0);
+      box-shadow:inset 5px 5px 10px var(--neu-dark),inset -5px -5px 10px var(--neu-light);
+    }
+
+    .neu-submit-btn:disabled{
+      opacity:.65;
+      cursor:not-allowed;
+    }
+
+    .neu-divider{
+      height:1px;
+      background:rgba(148,163,184,.25);
+      margin:24px 0 14px;
+    }
+
+    .neu-contact-label{
+      font-size:.82rem;
+      color:var(--neu-muted);
+      font-weight:600;
+      margin-bottom:14px;
+    }
+
+    .neu-socials{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      margin-bottom:20px;
+    }
+
+    .neu-social-btn{
+      width:44px;
+      height:44px;
+      border-radius:50%;
+      background:var(--neu-bg);
+      color:#1e293b;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:1rem;
+      box-shadow:6px 6px 12px var(--neu-dark),-6px -6px 12px var(--neu-light);
+      transition:transform .15s ease;
+    }
+
+    .neu-social-btn:hover{
+      transform:translateY(-2px);
+    }
+
+    .neu-social-btn:active{
+      box-shadow:inset 4px 4px 8px var(--neu-dark),inset -4px -4px 8px var(--neu-light);
+    }
+
+    .neu-footer{
+      font-size:.86rem;
+      color:var(--neu-muted);
+      font-weight:500;
+    }
+
+    .neu-footer b{
+      color:#1e293b;
+      font-weight:700;
+    }
+
+    .api-response-box{
+      text-align:left;
+      max-height:220px;
+      overflow:auto;
+      background:#0f172a;
+      color:#e2e8f0;
+      padding:10px;
+      border-radius:10px;
+      font-size:.78rem;
+      margin-top:10px;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+
+    .dev-badge{
+      margin-top:8px;
+      font-size:.75rem;
+      color:#64748b;
+    }
+
+    .neu-swal{
+      border-radius:24px !important;
+      background:#e8eef5 !important;
+      color:#0f172a !important;
+    }
+
+    .neu-confirm{
+      border-radius:999px !important;
+      background:#2563eb !important;
+      padding:10px 24px !important;
+      font-weight:700 !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="neu-card">
+    <a href="/" class="neu-back" title="Back to Dashboard">←</a>
+
+    <div class="neu-icon-ring">
+      <div class="neu-icon-inner">
+        <svg width="30" height="24" viewBox="0 0 24 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="1" y="1" width="22" height="17" rx="3.5" fill="#2563eb"/>
+          <path d="M2.5 3.5L12 10.5L21.5 3.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="neu-title">Email Bomber</h1>
+    <p class="neu-sub">Enter target email &amp; amount of requests</p>
+
+    <form id="emailForm">
+      <div class="neu-input-wrap">
+        <input type="email" id="email" class="neu-input" placeholder="Email Address" required>
+      </div>
+      <div class="neu-input-wrap">
+        <input type="number" id="amount" class="neu-input" placeholder="Amount (e.g. 5)" min="1" required>
+      </div>
+      <button type="submit" id="submitBtn" class="neu-submit-btn">SUBMIT</button>
+    </form>
+
+    <div class="neu-divider"></div>
+    <div class="neu-contact-label">Developer Contact</div>
+
+    <div class="neu-socials">
+      <a href="https://facebook.com" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Facebook">f</a>
+      <a href="https://instagram.com/efty.notfound" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Instagram">◎</a>
+      <a href="https://t.me/Efty67" target="_blank" rel="noopener" class="neu-social-btn" aria-label="Telegram">⛨</a>
+    </div>
+
+    <div class="neu-footer">Developed by <b>Efty</b></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("emailForm");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (m) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[m]));
+    }
+
+    function checkCallSuccess(resOk, rawText) {
+      let isSuccess = resOk;
+      let formatted = rawText;
+
+      try {
+        const parsed = JSON.parse(rawText);
+        formatted = JSON.stringify(parsed, null, 2);
+        if (
+          parsed.success === false ||
+          String(parsed.status).toLowerCase() === "error" ||
+          String(parsed.status).toLowerCase() === "fail"
+        ) {
+          isSuccess = false;
+        } else if (
+          parsed.success === true ||
+          String(parsed.status).toLowerCase() === "success" ||
+          String(parsed.status).toLowerCase() === "ok"
+        ) {
+          isSuccess = true;
+        }
+      } catch (_) {
+        const lower = rawText.toLowerCase();
+        if (
+          !resOk ||
+          lower.includes("error") ||
+          lower.includes("fail") ||
+          lower.includes("invalid") ||
+          lower.trim() === ""
+        ) {
+          isSuccess = false;
+        }
+      }
+
+      return { isSuccess, formatted };
+    }
+
+    async function sendSingleApiRequest(email, requestNumber) {
+      const endpoint = `/api/proxy?email=${encodeURIComponent(email)}&amount=1&req=${requestNumber}&t=${Date.now()}`;
+      const res = await fetch(endpoint, {
+        method: "GET",
+        cache: "no-store"
+      });
+      const rawText = await res.text();
+      return checkCallSuccess(res.ok, rawText);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const amount = parseInt(document.getElementById("amount").value.trim(), 10);
+
+      if (!email || !amount || amount < 1) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "SENDING...";
+
+      Swal.fire({
+        title: "Sending Requests...",
+        html: `Sent <b>0 / ${amount}</b> request(s) to <b>${escapeHtml(email)}</b>`,
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        customClass: {
+          popup: "neu-swal"
+        }
+      });
+
+      let successCount = 0;
+      let failCount = 0;
+      const logs = [];
+
+      for (let i = 1; i <= amount; i++) {
+        Swal.update({
+          html: `Sending request <b>${i} / ${amount}</b> to <b>${escapeHtml(email)}</b><br><small>Success: ${successCount} | Fail: ${failCount}</small>`
+        });
+
+        try {
+          const { isSuccess, formatted } = await sendSingleApiRequest(email, i);
+
+          if (isSuccess) {
+            successCount++;
+            logs.push(`[Request #${i} - SUCCESS]\n${formatted || "OK"}`);
+          } else {
+            failCount++;
+            logs.push(`[Request #${i} - FAIL]\n${formatted || "Empty/Error response"}`);
+          }
+        } catch (err) {
+          failCount++;
+          logs.push(`[Request #${i} - FAIL]\n${err.message}`);
+        }
+      }
+
+      const allSuccess = failCount === 0 && successCount > 0;
+      const summaryText = `Total Sent: ${amount} | Success: ${successCount} | Fail: ${failCount}`;
+
+      Swal.fire({
+        title: allSuccess ? "Send Success" : (successCount > 0 ? "Partially Completed" : "Send Failed"),
+        html: `
+          <div style="font-size:0.85rem;font-weight:600;color:#334155;">${summaryText}</div>
+          <pre class="api-response-box">${escapeHtml(logs.join("\n\n"))}</pre>
+          <div class="dev-badge">Developer: Efty</div>
+        `,
+        icon: allSuccess ? "success" : (successCount > 0 ? "warning" : "error"),
+        confirmButtonText: "OK",
+        customClass: {
+          popup: "neu-swal",
+          confirmButton: "neu-confirm"
+        }
+      });
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "SUBMIT";
+    });
+  </script>
+</body>
+</html>
