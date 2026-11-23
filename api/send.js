@@ -2,6 +2,8 @@ const COOLDOWN = 60; // seconds
 const ipHits = new Map();
 const numHits = new Map();
 
+const API_KEY = 'hexa_a635fb502df75accb2ea7edd26797776dd2c3ce04f1791ab_1_20';
+
 function wait(map, key) {
   const left = COOLDOWN - Math.floor((Date.now() - (map.get(key) || 0)) / 1000);
   return left > 0 ? left : 0;
@@ -23,7 +25,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'Name too long' });
   }
   if (business_name.trim().length < 3 || business_name.trim().length > 50) {
-    return res.status(400).json({ ok: false, error: 'Business name 3 theke 50 akkhor hote hobe' });
+    return res.status(400).json({ ok: false, error: 'Message 3 theke 50 akkhor hote hobe' });
   }
 
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || 'unknown';
@@ -38,27 +40,25 @@ export default async function handler(req, res) {
     return res.status(status).json({ ok: false, error, raw });
   };
 
-  const payload = {
-    name: name.trim(),
-    phone_number: '+88' + number,
-    business_name: business_name.trim()
-  };
+  const cleanName = name.trim();
+  const cleanNumber = number.trim();
+  const cleanMsg = `${business_name.trim()} (From: ${cleanName})`;
 
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 10000);
 
-    const r = await fetch('https://api-merchant.carrybee.com/api/v2/merchant/register', {
-      method: 'POST',
+    const url = new URL('https://hexaapi.com/api/v1/proxy/smshaf');
+    url.searchParams.set('api_key', API_KEY);
+    url.searchParams.set('num', cleanNumber);
+    url.searchParams.set('msg', cleanMsg);
+
+    const r = await fetch(url.toString(), {
+      method: 'GET',
       signal: ctrl.signal,
       headers: {
-        'Origin': 'https://merchant.carrybee.com',
-        'Referer': 'https://merchant.carrybee.com/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Content-Type': 'application/json',
         'Accept': 'application/json, text/plain, */*'
-      },
-      body: JSON.stringify(payload)
+      }
     });
     clearTimeout(timer);
 
@@ -68,18 +68,22 @@ export default async function handler(req, res) {
       j = JSON.parse(text);
     } catch (_) {}
 
-    if (!j) {
-      return fail(502, 'API invalid response (HTTP ' + r.status + ')', text.slice(0, 300));
+    if (!r.ok) {
+      return fail(r.status, (j && (j.error || j.message)) || ('API error (HTTP ' + r.status + ')'), j || text.slice(0, 300));
     }
 
-    if (!r.ok || j.success === false) {
-      return fail(200, j.message || ('API error (HTTP ' + r.status + ')'), j);
+    if (j && (j.ok === false || j.success === false)) {
+      return fail(200, j.error || j.message || 'API failed', j);
     }
 
     ipHits.set(ip, Date.now());
-    numHits.set(number, Date.now());
+    numHits.set(cleanNumber, Date.now());
 
-    return res.status(200).json({ ok: true, message: j.message || 'Message sent', raw: j });
+    return res.status(200).json({
+      ok: true,
+      message: (j && j.message) || text || 'Message sent',
+      raw: j || text
+    });
   } catch (e) {
     return fail(
       500,
@@ -89,4 +93,5 @@ export default async function handler(req, res) {
     );
   }
 }
+
 
